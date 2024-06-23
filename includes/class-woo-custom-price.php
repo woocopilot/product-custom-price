@@ -189,21 +189,40 @@ class Woo_Custom_Price {
     public function custom_price_html() {
         $current_user = wp_get_current_user();
         $input = get_user_meta($current_user->ID, 'input_value', true);
+        $min_value = get_user_meta($current_user->ID, 'min_value', true);
+        $max_value = get_user_meta($current_user->ID, 'max_value', true);
+        $step_value = get_user_meta($current_user->ID, 'step_value', true);
 
+        // Set default values if none are saved
         if (!$input) {
             $input = 'No input saved';
         }
+        if (!$min_value) {
+            $min_value = 1;
+        }
+        if (!$max_value) {
+            $max_value = 1000;
+        }
+        if (!$step_value) {
+            $step_value = 1;
+        }
+
         global $product;
         ob_start();
         ?>
 
         <div class="woocp-price-input">
             <label for="woocp_custom_price"><?php esc_html_e( $input, 'woo-custom-price' ); ?></label>
-            <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="1" min="1" max="1000" value="<?php echo esc_attr( $product->get_price() ); ?>" />
+            <input type="number" id="woocp_custom_price" name="woocp_custom_price"
+                   step="<?php echo esc_attr( $step_value ); ?>"
+                   min="<?php echo esc_attr( $min_value ); ?>"
+                   max="<?php echo esc_attr( $max_value ); ?>"
+                   value="<?php echo esc_attr( $product->get_price() ); ?>" />
         </div>
 
         <?php
         echo ob_get_clean();
+
 
 
 //        global $product;
