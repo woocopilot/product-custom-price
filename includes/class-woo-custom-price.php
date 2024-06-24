@@ -104,8 +104,8 @@ class Woo_Custom_Price {
      * @return void
      */
     public function dependencies_notices() {
-        if ( class_exists( 'WooCommerce' ) ) {
-            printf( '<div id="message" class="notice is-dismissible notice-warning"><p>%s</p></div>', '"Woo Custom Price plugin" is required to use WooCommerce plugin.' );
+        if ( ! class_exists( 'WooCommerce' ) ) {
+            printf( '<div id="message" class="notice is-dismissible notice-warning"><p>%s</p></div>', '"Woo Custom Price" plugin is required to use WooCommerce.' );
         }
     }
 
@@ -116,8 +116,11 @@ class Woo_Custom_Price {
      * @return void
      */
     public function init() {
-        // Include.
-        new Admin();
+
+        if ( is_admin() ) {
+            // Include admin classes.
+            new Admin();
+        }
 
         // Frontend methods.
         add_filter( 'woocommerce_loop_add_to_cart_link', [ $this, 'loop_add_to_cart_link' ], PHP_INT_MAX, 2 );

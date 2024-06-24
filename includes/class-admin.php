@@ -9,67 +9,58 @@ defined( 'ABSPATH' ) || exit;
  */
 class Admin {
 
-    public string $test;
-
+    /**
+     * Constructor.
+     */
     public function __construct() {
-        add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-        add_action( 'admin_menu', array( $this, 'sub_menu_under_woocommerce' ) );
-        add_action( 'admin_notices', array( $this, 'dependencies_notices' ) );
+        add_action( 'admin_menu', array( $this, 'admin_menu' ), 59 );
+        add_action( 'admin_post_woocp_update_settings', array( $this, 'update_settings' ) );
     }
 
+    /**
+     * Add sub menu.
+     *
+     * @since 1.0.0
+     */
     public function admin_menu() {
-        add_menu_page(
-            'Woo Custom Price',
-            'Woo Custom Price',
-            'manage_options',
-            'woo-custom-price',
-            array( $this, 'admin_page' ),
-            'dashicons-cart',
-            '56',
-        );
-    }
-
-    public function admin_page() {
-        echo '<div class="wrap">';
-        echo '<h2>Woo Custom Price</h2>';
-        echo '</div>';
-    }
-
-    public function sub_menu_under_woocommerce() {
         add_submenu_page(
             'woocommerce',
-            'Woo Custom Price',
-            'Woo Custom Price',
-            'manage_options',
+            __( 'Woo Custom Prices', 'woo-custom-price' ),
+            __( 'Woo Custom Prices', 'woo-custom-price' ),
+            'manage_woocommerce',
             'woo-custom-price',
-            array( $this, 'under_woocommerce_page' )
+            array( $this, 'render_settings_page' ),
         );
     }
-    public function under_woocommerce_page() {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['input_value'])) {
-            $current_user = wp_get_current_user();
-            update_user_meta($current_user->ID, 'input_value', sanitize_text_field($_POST['input_value']));
-        }
+
+    public function render_settings_page() {
         ?>
-        <h1>Something I want to add</h1>
-        <form method="post">
-            <input class="border-block-support-panel" name="input_value"/>
-            <button type="submit" class="btn btn-primary">Save</button>
-        </form>
+        <div class="wrap">
+            <h1><?php esc_html_e( 'Woo Custom Price', 'woo-custom-price' ); ?></h1>
+            <p><?php esc_html_e( 'Bellow are the plugin options that will determine how the plugin will work.', 'woo-custom-price' ); ?></p>
+
+            <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+
+                <input type="text" name="price_label" id="price_label" placeholder="Enter the price label text" value="<?php echo esc_attr( get_option( 'woocp_price_label' ) ); ?>" />
+
+
+                <?php wp_nonce_field( 'woocp_update_settings' ); ?>
+                <input type="hidden" name="action" value="woocp_update_settings">
+                <?php submit_button( __( 'Save Settings', 'woo-custom-price' ) ); ?>
+            </form>
+        </div>
         <?php
     }
 
-    public function dependencies_notices() {
-        $current_user = wp_get_current_user();
-        $input = get_user_meta($current_user->ID, 'input_value', true);
+    public function update_settings() {
+        check_admin_referer( 'woocp_update_settings' );
+        $referrer = wp_get_referer();
 
-        if (!$input) {
-            $input = 'No input saved';
-        }
+        $price_label = isset( $_POST['price_label'] ) ? sanitize_text_field( wp_unslash( $_POST['price_label'] ) ) : '';
 
-        if (class_exists('WooCommerce')) {
-            printf('<div id="message" class="notice is-dismissible notice-success"><p>%s</p></div>', $input);
-        }
+        // Update settings.
+        update_option( 'woocp_price_label', $price_label );
+
+        wp_safe_redirect( $referrer );
     }
-
 }
