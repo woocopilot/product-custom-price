@@ -41,8 +41,8 @@ class Admin {
 
             <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 
+                <label for="price_label"><?php esc_html_e( 'Enter price label:', 'woo-custom-price' ); ?></label>
                 <input type="text" name="price_label" id="price_label" placeholder="Enter the price label text" value="<?php echo esc_attr( get_option( 'woocp_price_label' ) ); ?>" />
-
 
                 <?php wp_nonce_field( 'woocp_update_settings' ); ?>
                 <input type="hidden" name="action" value="woocp_update_settings">
