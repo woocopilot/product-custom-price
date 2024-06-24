@@ -190,6 +190,12 @@ class Woo_Custom_Price {
      */
     public function custom_price_html() {
 
+        $options = get_option('my_custom_price');
+        $checkbox_value = isset($options['my_plugin_checkbox']) ? $options['my_plugin_checkbox'] : 0;
+        $min_price = isset($options['min_price']) ? $options['min_price'] : 1;
+        $max_price = isset($options['max_price']) ? $options['max_price'] : 1000;
+        $step_price = isset($options['step_price']) ? $options['step_price'] : 1;
+
         global $product;
 
         ob_start();
@@ -197,7 +203,11 @@ class Woo_Custom_Price {
 
         <div class="woocp-price-input">
             <label for="woocp_custom_price"><?php esc_html_e( 'Enter Custom Price:', 'woo-custom-price' ); ?></label>
-            <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="1" min="1" max="1000" value="<?php echo esc_attr( $product->get_price() ); ?>" />
+            <input type="number" id="woocp_custom_price" name="woocp_custom_price"
+                  step="<?php echo intval( $step_price ); ?>"
+                   min="<?php echo esc_attr( $min_price ); ?>"
+                   max="<?php echo esc_attr( $max_price ); ?>"
+                   value="<?php echo esc_attr( $product->get_price() ); ?>" />
         </div>
 
         <?php
