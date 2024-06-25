@@ -116,19 +116,20 @@ class Woo_Custom_Price {
      * @return void
      */
     public function init() {
-
         if ( is_admin() ) {
             // Include admin classes.
             new Admin();
         }
 
-        // Frontend methods.
-        add_filter( 'woocommerce_loop_add_to_cart_link', [ $this, 'loop_add_to_cart_link' ], PHP_INT_MAX, 2 );
-        add_filter( 'woocommerce_get_price_html', [ $this, 'replace_original_price' ], PHP_INT_MAX, 2 );
-        add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'custom_price_html' ), PHP_INT_MAX );
-        add_filter( 'woocommerce_add_to_cart_validation', [ $this, 'add_to_cart_validation' ], PHP_INT_MAX, 2 );
-        add_filter( 'woocommerce_add_cart_item_data', [ $this, 'add_cart_item_data' ], PHP_INT_MAX );
-        add_filter( 'woocommerce_get_cart_contents', [ $this, 'get_cart_contents' ], PHP_INT_MAX, 1 );
+        if ( 'yes' === get_option( 'woocp_is_enabled', 'yes' ) ) {
+            // Frontend methods.
+            add_filter( 'woocommerce_loop_add_to_cart_link', [ $this, 'loop_add_to_cart_link' ], PHP_INT_MAX, 2 );
+            add_filter( 'woocommerce_get_price_html', [ $this, 'replace_original_price' ], PHP_INT_MAX, 2 );
+            add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'custom_price_html' ), PHP_INT_MAX );
+            add_filter( 'woocommerce_add_to_cart_validation', [ $this, 'add_to_cart_validation' ], PHP_INT_MAX, 2 );
+            add_filter( 'woocommerce_add_cart_item_data', [ $this, 'add_cart_item_data' ], PHP_INT_MAX );
+            add_filter( 'woocommerce_get_cart_contents', [ $this, 'get_cart_contents' ], PHP_INT_MAX, 1 );
+        }
     }
 
     /**
@@ -141,8 +142,11 @@ class Woo_Custom_Price {
      * @return string
      */
     public function loop_add_to_cart_link( $html, $product ) {
+        if ( 'yes' !== get_option( 'woocp_loop_add_to_cart_btn', 'yes' ) ) {
+            return $html;
+        }
 
-        $get_post_meta = get_post_meta( $product->get_id(), '_woonp_status', true );
+        $get_post_meta = get_post_meta($product->get_id(), '_woonp_status', true);
         // TODO: Will check it after finishing the plugin settings.
 //        if ( ( WoonpHelper::get_setting( 'atc_button', 'show' ) === 'hide' ) &&
 //            ( ( WoonpHelper::get_setting( 'global_status', 'enable' ) === 'enable' && $get_post_meta !== 'disable' ) ||
@@ -190,18 +194,14 @@ class Woo_Custom_Price {
      * @return void
      */
     public function custom_price_html() {
-        $current_user = wp_get_current_user();
-        $input = get_user_meta($current_user->ID, 'input_value', true);
-
-        if (!$input) {
-            $input = 'No input saved';
-        }
         global $product;
+        $input_label = get_option( 'woocp_input_label_text', 'Enter Your Price' );
+
         ob_start();
         ?>
 
         <div class="woocp-price-input">
-            <label for="woocp_custom_price"><?php esc_html_e( $input, 'woo-custom-price' ); ?></label>
+            <label for="woocp_custom_price"><?php echo esc_html( $input_label ); ?></label>
             <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="1" min="1" max="1000" value="<?php echo esc_attr( $product->get_price() ); ?>" />
         </div>
 
