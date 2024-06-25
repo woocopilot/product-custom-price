@@ -198,9 +198,10 @@ class Woo_Custom_Price {
         $product_price=floatval($product->get_price());
         $value=number_format($product_price, 2, '.', '');
         $input_label = get_option( 'woocp_input_label_text', 'Enter Your Price' );
-        $minimum_price=(int) get_option('woocp_minimum_price',1);
-        $maximum_price=(int)get_option('woocp_maximum_price',1000);
-        $step=(int) get_option('woocp_step',1);
+        $minimum_price= absint( get_option('woocp_minimum_price',1) );
+        var_dump( $minimum_price );
+        $maximum_price= intval( get_option('woocp_maximum_price',1000) );
+        $step= intval( get_option('woocp_step',1) );
 
         ob_start();
         ?>
