@@ -195,14 +195,20 @@ class Woo_Custom_Price {
      */
     public function custom_price_html() {
         global $product;
+        $product_price=floatval($product->get_price());
+        $value=number_format($product_price, 2, '.', '');
         $input_label = get_option( 'woocp_input_label_text', 'Enter Your Price' );
+        $minimum_price= absint( get_option('woocp_minimum_price',1) );
+        var_dump( $minimum_price );
+        $maximum_price= intval( get_option('woocp_maximum_price',1000) );
+        $step= intval( get_option('woocp_step',1) );
 
         ob_start();
         ?>
 
         <div class="woocp-price-input">
             <label for="woocp_custom_price"><?php echo esc_html( $input_label ); ?></label>
-            <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="1" min="1" max="1000" value="<?php echo esc_attr( $product->get_price() ); ?>" />
+            <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="<?php echo esc_attr( $step ); ?>" min="<?php echo esc_attr( $minimum_price ); ?>" max="<?php echo esc_attr( $maximum_price ); ?>" value="<?php echo esc_attr(  $value); ?>" />
         </div>
 
         <?php
