@@ -121,7 +121,7 @@ class Woo_Custom_Price {
             new Admin();
         }
 
-        if ( 'yes' === get_option( 'woocp_is_enabled', 'yes' ) ) {
+        if ( 'enable' === get_option( 'woocp_status', 'enable' ) ) {
             // Frontend methods.
             add_filter( 'woocommerce_loop_add_to_cart_link', [ $this, 'loop_add_to_cart_link' ], PHP_INT_MAX, 2 );
             add_filter( 'woocommerce_get_price_html', [ $this, 'replace_original_price' ], PHP_INT_MAX, 2 );
@@ -142,7 +142,7 @@ class Woo_Custom_Price {
      * @return string
      */
     public function loop_add_to_cart_link( $html, $product ) {
-        if ( 'yes' !== get_option( 'woocp_loop_add_to_cart_btn', 'yes' ) ) {
+        if ( 'show' !== get_option( 'woocp_loop_add_to_cart_btn', 'show' ) ) {
             return $html;
         }
 
@@ -199,7 +199,7 @@ class Woo_Custom_Price {
         $value=number_format($product_price, 2, '.', '');
         $input_label = get_option( 'woocp_input_label_text', 'Enter Your Price' );
         $minimum_price= absint( get_option('woocp_minimum_price',1) );
-        var_dump( $minimum_price );
+//        var_dump( $minimum_price );
         $maximum_price= intval( get_option('woocp_maximum_price',1000) );
         $step= intval( get_option('woocp_step',1) );
 

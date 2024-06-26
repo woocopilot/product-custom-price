@@ -84,12 +84,12 @@ class Admin {
                 </div>
 
                 <div class="form-group">
-                    <label for="status">Status</label>
+                    <label for="woocp_status">Status</label>
                     <div>
-                        <input type="radio" id="status" name="status" value="enable" <?php checked('enable', $woocp_price_setting['status']); ?>>
+                        <input type="radio" id="woocp_status" name="woocp_status" value="enable" <?php checked('enable', $woocp_price_setting['woocp_status']); ?>>
                         <label for="enable">Enable</label>
 
-                        <input type="radio" id="status" name="status" value="disable" <?php checked('disable', $woocp_price_setting['status']); ?>>
+                        <input type="radio" id="woocp_status" name="woocp_status" value="disable" <?php checked('disable', $woocp_price_setting['woocp_status']); ?>>
                         <label for="disable">Disable</label>
                         <p><?php esc_html_e( 'You still can enable/disable it on a product basis.', 'woo-custom-price' ); ?></p>
                     </div>
@@ -104,12 +104,12 @@ class Admin {
                 </div>
 
                 <div class="form-group">
-                    <label for="add_to_cart_button">Add to cart button</label>
+                    <label for="woocp_loop_add_to_cart_btn">Add to cart button</label>
                     <div>
-                        <input type="radio" id="add_to_cart_button" name="add_to_cart_button" value="show" <?php checked('show', $woocp_price_setting['add_to_cart_button']); ?>>
+                        <input type="radio" id="woocp_loop_add_to_cart_btn" name="woocp_loop_add_to_cart_btn" value="show" <?php checked('show', $woocp_price_setting['woocp_loop_add_to_cart_btn']); ?>>
                         <label for="enable">Show</label>
 
-                        <input type="radio" id="add_to_cart_button" name="add_to_cart_button" value="hide" <?php checked('hide', $woocp_price_setting['add_to_cart_button']); ?>>
+                        <input type="radio" id="woocp_loop_add_to_cart_btn" name="woocp_loop_add_to_cart_btn" value="hide" <?php checked('hide', $woocp_price_setting['woocp_loop_add_to_cart_btn']); ?>>
                         <label for="disable">Hide</label>
                         <p><?php esc_html_e( 'Show/hide add to cart button on the shop/archive page.', 'woo-custom-price' ); ?></p>
                     </div>
@@ -132,9 +132,9 @@ class Admin {
                 </div>
 
                 <div class="form-group">
-                    <label for="price_label"><?php esc_html_e( 'Label', 'woo-custom-price' ); ?></label>
+                    <label for="woocp_input_label_text"><?php esc_html_e( 'Label', 'woo-custom-price' ); ?></label>
                     <div>
-                        <input class="form-input" type="text" name="price_label" id="price_label" placeholder="Name Your Price (%s)" value="<?php echo esc_attr( $woocp_price_setting['price_label'] ); ?>" />
+                        <input class="form-input" type="text" name="woocp_input_label_text" id="woocp_input_label_text" placeholder="Name Your Price (%s)" value="<?php echo esc_attr( $woocp_price_setting['woocp_input_label_text'] ); ?>" />
                         <p><?php esc_html_e( 'Use "%s" for currency.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
@@ -152,25 +152,25 @@ class Admin {
                 </div>
 
                 <div class="form-group">
-                    <label for="minimum"><?php esc_html_e( 'Minimum', 'woo-custom-price' ); ?></label>
+                    <label for="woocp_minimum_price"><?php esc_html_e( 'Minimum', 'woo-custom-price' ); ?></label>
                     <div>
-                        <input class="form-input" type="text" name="minimum" id="minimum" value="<?php echo esc_attr( $woocp_price_setting['minimum'] ); ?>" />
+                        <input class="form-input" type="text" name="woocp_minimum_price" id="woocp_minimum_price" value="<?php echo esc_attr( $woocp_price_setting['woocp_minimum_price'] ); ?>" />
                         <p><?php esc_html_e( 'Leave blank or zero to disable.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="step"><?php esc_html_e( 'Step', 'woo-custom-price' ); ?></label>
+                    <label for="woocp_step"><?php esc_html_e( 'Step', 'woo-custom-price' ); ?></label>
                     <div>
-                        <input class="form-input" type="text" name="step" id="step" value="<?php echo esc_attr( $woocp_price_setting['step'] ); ?>" />
+                        <input class="form-input" type="text" name="woocp_step" id="woocp_step" value="<?php echo esc_attr( $woocp_price_setting['woocp_step'] ); ?>" />
                         <p><?php esc_html_e( 'Leave blank or zero to disable.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="maximum"><?php esc_html_e( 'Maximum', 'woo-custom-price' ); ?></label>
+                    <label for="woocp_maximum_price"><?php esc_html_e( 'Maximum', 'woo-custom-price' ); ?></label>
                     <div>
-                        <input class="form-input" type="text" name="maximum" id="maximum" value="<?php echo esc_attr( $woocp_price_setting['maximum'] ); ?>" />
+                        <input class="form-input" type="text" name="woocp_maximum_price" id="woocp_maximum_price" value="<?php echo esc_attr( $woocp_price_setting['woocp_maximum_price'] ); ?>" />
                         <p><?php esc_html_e( 'Leave blank or zero to disable.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
@@ -187,16 +187,16 @@ class Admin {
         check_admin_referer( 'woocp_update_settings' );
         $referrer = wp_get_referer();
 
-        $woocp_price['status'] = isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( $_POST['status'] ) ) : '';
+        $woocp_price['woocp_status'] = isset( $_POST['woocp_status'] ) ? sanitize_text_field( wp_unslash( $_POST['woocp_status'] ) ) : '';
         $woocp_price['suggested_price'] = isset( $_POST['suggested_price'] ) ? sanitize_text_field( wp_unslash( $_POST['suggested_price'] ) ) : '';
-        $woocp_price['add_to_cart_button'] = isset( $_POST['add_to_cart_button'] ) ? sanitize_text_field( wp_unslash( $_POST['add_to_cart_button'] ) ) : '';
+        $woocp_price['woocp_loop_add_to_cart_btn'] = isset( $_POST['woocp_loop_add_to_cart_btn'] ) ? sanitize_text_field( wp_unslash( $_POST['woocp_loop_add_to_cart_btn'] ) ) : '';
         $woocp_price['rounding_values'] = isset( $_POST['rounding_values'] ) ? sanitize_text_field( wp_unslash( $_POST['rounding_values'] ) ) : '';
 
-        $woocp_price['price_label'] = isset( $_POST['price_label'] ) ? sanitize_text_field( wp_unslash( $_POST['price_label'] ) ) : '';
+        $woocp_price['woocp_input_label_text'] = isset( $_POST['woocp_input_label_text'] ) ? sanitize_text_field( wp_unslash( $_POST['woocp_input_label_text'] ) ) : '';
         $woocp_price['default_value'] = isset( $_POST['default_value'] ) ? sanitize_text_field( wp_unslash( $_POST['default_value'] ) ) : '';
-        $woocp_price['minimum'] = isset( $_POST['minimum'] ) ? sanitize_text_field( wp_unslash( $_POST['minimum'] ) ) : '';
-        $woocp_price['step'] = isset( $_POST['step'] ) ? sanitize_text_field( wp_unslash( $_POST['step'] ) ) : '';
-        $woocp_price['maximum'] = isset( $_POST['minimum'] ) ? sanitize_text_field( wp_unslash( $_POST['maximum'] ) ) : '';
+        $woocp_price['woocp_minimum_price'] = isset( $_POST['woocp_minimum_price'] ) ? sanitize_text_field( wp_unslash( $_POST['woocp_minimum_price'] ) ) : '';
+        $woocp_price['woocp_step'] = isset( $_POST['woocp_step'] ) ? sanitize_text_field( wp_unslash( $_POST['woocp_step'] ) ) : '';
+        $woocp_price['woocp_maximum_price'] = isset( $_POST['woocp_maximum_price'] ) ? sanitize_text_field( wp_unslash( $_POST['woocp_maximum_price'] ) ) : '';
 
         // Update settings.
         update_option( 'woocp_price', $woocp_price );
