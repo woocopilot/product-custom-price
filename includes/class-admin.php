@@ -34,7 +34,6 @@ class Admin {
     }
 
     public function render_settings_page() {
-        $woocp_price_setting = get_option('woocp_price');
         ?>
         <style>
             .wooco-wrap {
