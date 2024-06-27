@@ -15,6 +15,11 @@ class Admin {
     public function __construct() {
         add_action( 'admin_menu', array( $this, 'admin_menu' ), 59 );
         add_action( 'admin_post_woocp_update_settings', array( $this, 'update_settings' ) );
+
+        // Product metaboxes.
+        add_action( 'woocommecre_product_panel_hook_name_should_appear_here', array( $this, 'your_method_name' ) );
+
+        // Enqueue admin scripts.
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
     }
 
@@ -153,6 +158,25 @@ class Admin {
         update_option( 'woocp_step', $step );
 
         wp_safe_redirect( $referrer );
+    }
+
+    /**
+     * Your method description.
+     *
+     * @since 1.0.0
+     * @retun void
+     */
+    public function your_method_name() {
+        // Your code should appear here...
+
+        // Possible chat GPT commands.
+        // How to add woocommerce product panel tab and data.
+        // How to add custom panel and data inside the woocommerce product metabox panel.
+
+        // for saving metabpox data.
+        $step = isset( $_POST['woocp_step'] ) ? floatval( $_POST['woocp_step'] ) : '';
+
+        update_post_meta( get_the_ID(), 'woocp_your_id_name', 'yes' );
     }
 
     /**
