@@ -15,12 +15,14 @@ class Admin {
     public function __construct() {
         add_action( 'admin_menu', array( $this, 'admin_menu' ), 59 );
         add_action( 'admin_post_woocp_update_settings', array( $this, 'update_settings' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
     }
 
     /**
      * Add sub menu.
      *
      * @since 1.0.0
+     * @return void
      */
     public function admin_menu() {
         add_submenu_page(
@@ -33,30 +35,14 @@ class Admin {
         );
     }
 
+    /**
+     * Settings.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function render_settings_page() {
         ?>
-        <style>
-            .wooco-wrap {
-                width: 100%;
-                margin: 0 auto;
-            }
-            .form-group{
-                display: flex;
-                align-items: center;
-                gap: 20px;
-            }
-            .form-label{
-                width: 200px;
-                font-weight: 600;
-            }
-            .form-field{
-                width: 100%;
-            }
-            .woocp-settings-form input[type="text"],
-            .woocp-settings-form input[type="number"] {
-                max-width: 300px;
-            }
-        </style>
         <div class="wrap wooco-wrap">
             <h1><?php esc_html_e( 'Woo Custom Price', 'woo-custom-price' ); ?></h1>
             <p><?php esc_html_e( 'Below are the plugin options that will determine how the plugin will work.', 'woo-custom-price' ); ?></p>
@@ -74,7 +60,7 @@ class Admin {
                     <div class="form-field">
                         <label for="woocp_status_enabled"><input type="radio" id="woocp_status_enabled" name="woocp_status" value="enable" <?php checked('enable', get_option( 'woocp_status' ) ); ?>><?php esc_html_e( 'Enable', 'woo-custom-price' ); ?></label>
                         <label for="woocp_status_disabled"><input type="radio" id="woocp_status_disabled" name="woocp_status" value="disable" <?php checked('disable', get_option( 'woocp_status' ) ); ?>><?php esc_html_e( 'Disable', 'woo-custom-price' ); ?></label>
-                        <p><?php esc_html_e( 'You still can enable/disable it on a product basis.', 'woo-custom-price' ); ?></p>
+                        <p><?php esc_html_e( 'Enable this to apply the plugin features.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
 
@@ -85,12 +71,12 @@ class Admin {
                     <div class="form-field">
                         <label for="woocp_loop_add_to_cart_btn_show"><input type="radio" id="woocp_loop_add_to_cart_btn_show" name="woocp_loop_add_to_cart_btn" value="enable" <?php checked('enable', get_option( 'woocp_loop_add_to_cart_btn' )); ?>><?php esc_html_e( 'Show', 'woo-custom-price' ); ?></label>
                         <label for="woocp_loop_add_to_cart_btn_hide"><input type="radio" id="woocp_loop_add_to_cart_btn_hide" name="woocp_loop_add_to_cart_btn" value="disable" <?php checked('disable', get_option( 'woocp_loop_add_to_cart_btn' )); ?>><?php esc_html_e( 'Hide', 'woo-custom-price' ); ?></label>
-                        <p><?php esc_html_e( 'You still can enable/disable it on a product basis.', 'woo-custom-price' ); ?></p>
+                        <p><?php esc_html_e( 'Show/hide add to cart button on the shop/archive page.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
 
                 <div class="form-heading">
-                    <h2><?php esc_html_e( 'Custom Price input', 'woo-custom-price' ); ?></h2>
+                    <h2><?php esc_html_e( 'Options for Custom Price Input', 'woo-custom-price' ); ?></h2>
                 </div>
 
                 <div class="form-group">
@@ -98,7 +84,7 @@ class Admin {
                         <label for="woocp_input_label_text"><?php esc_html_e( 'Label', 'woo-custom-price' ); ?></label>
                     </div>
                     <div class="form-field">
-                        <input type="text" name="woocp_input_label_text" id="woocp_input_label_text" placeholder="Name Your Price" value="<?php echo esc_attr( get_option('woocp_input_label_text') ); ?>" />
+                        <input type="text" name="woocp_input_label_text" id="woocp_input_label_text" placeholder="Name Your Price" value="<?php echo esc_attr( get_option('woocp_input_label_text', 'Enter Your Price' ) ); ?>" />
                         <p><?php esc_html_e( 'Enter the custom label.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
@@ -109,7 +95,7 @@ class Admin {
                     </div>
                     <div class="form-field">
                         <input type="number" id="woocp_minimum_price" name="woocp_minimum_price" min="0" placeholder="Enter the minimum value" value="<?php echo esc_attr( get_option( 'woocp_minimum_price') ); ?>" />
-                        <p><?php esc_html_e( 'Leave blank or zero to disable.', 'woo-custom-price' ); ?></p>
+                        <p><?php esc_html_e( 'Enter the minimum value. You can still override it on a per-product basis.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
 
@@ -119,7 +105,7 @@ class Admin {
                     </div>
                     <div class="form-field">
                         <input type="number" id="woocp_maximum_price" name="woocp_maximum_price" min="0" placeholder="Enter the maximum value" value="<?php echo esc_attr( get_option( 'woocp_maximum_price' ) ); ?>" />
-                        <p><?php esc_html_e( 'Leave blank or zero to disable.', 'woo-custom-price' ); ?></p>
+                        <p><?php esc_html_e( 'Enter the maximum value. You can still override it on a per-product basis.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
 
@@ -129,7 +115,7 @@ class Admin {
                     </div>
                     <div class="form-field">
                         <input type="number" id="woocp_step" name="woocp_step" step="0.01" value="<?php echo esc_attr( get_option( 'woocp_step') ); ?>" />
-                        <p><?php esc_html_e( 'Leave blank or zero to disable.', 'woo-custom-price' ); ?></p>
+                        <p><?php esc_html_e( 'Enter the step value. You can still override it on a per-product basis.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
 
@@ -141,6 +127,12 @@ class Admin {
         <?php
     }
 
+    /**
+     * Update settings.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function update_settings() {
         check_admin_referer( 'woocp_update_settings' );
         $referrer = wp_get_referer();
@@ -161,5 +153,19 @@ class Admin {
         update_option( 'woocp_step', $step );
 
         wp_safe_redirect( $referrer );
+    }
+
+    /**
+     * Admin scripts.
+     *
+     * @param string $hook Page hook.
+     *
+     * @since 1.0.0
+     * @retun void
+     */
+    public function enqueue_scripts( $hook ) {
+        if ( 'woocommerce_page_woo-custom-price' === $hook ) {
+            wp_enqueue_style( 'woocp_admin_style', WOOCP_PLUGIN_URL . 'assets/css/admin-style.css', array(), WOOCP_VERSION );
+        }
     }
 }

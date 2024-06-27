@@ -49,7 +49,7 @@ class Woo_Custom_Price {
      * @return void
      */
     public function define_constant(){
-        define( 'WOOCPJHSDBJ_VERSION', $this->version );
+        define( 'WOOCP_VERSION', $this->version );
         define( 'WOOCP_PLUGIN_DIR', plugin_dir_path( $this->file ) );
         define( 'WOOCP_PLUGIN_URL', plugin_dir_url( $this->file ) );
         define( 'WOOCP_PLUGIN_BASENAME', plugin_basename( $this->file ) );

@@ -4,7 +4,6 @@
 }
 .form-group{
     display: flex;
-    align-items: center;
     gap: 20px;
 }
 .form-label{
@@ -16,5 +15,5 @@
 }
 .woocp-settings-form input[type="text"],
 .woocp-settings-form input[type="number"] {
-    max-width: 300px;
+    max-width: 300px!important;
 }
