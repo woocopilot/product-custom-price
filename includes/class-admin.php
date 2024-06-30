@@ -17,7 +17,9 @@ class Admin {
         add_action( 'admin_post_woocp_update_settings', array( $this, 'update_settings' ) );
 
         // Product metaboxes.
-        add_action( 'woocommecre_product_panel_hook_name_should_appear_here', array( $this, 'your_method_name' ) );
+        add_filter( 'woocommerce_product_data_tabs', array( $this, 'add_data_tab' ) );
+        add_action('woocommerce_product_data_panels', array( $this, 'add_data_panel' ) );
+        add_action('woocommerce_process_product_meta', array( $this, 'save_product_meta' ) );
 
         // Enqueue admin scripts.
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -90,7 +92,7 @@ class Admin {
                     </div>
                     <div class="form-field">
                         <input type="text" name="woocp_input_label_text" id="woocp_input_label_text" placeholder="Name Your Price" value="<?php echo esc_attr( get_option('woocp_input_label_text', 'Enter Your Price' ) ); ?>" />
-                        <p><?php esc_html_e( 'Enter the custom label.', 'woo-custom-price' ); ?></p>
+                        <p><?php esc_html_e( 'Enter the custom price field label.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
 
@@ -99,7 +101,7 @@ class Admin {
                         <label for="woocp_minimum_price"><?php esc_html_e( 'Minimum', 'woo-custom-price' ); ?></label>
                     </div>
                     <div class="form-field">
-                        <input type="number" id="woocp_minimum_price" name="woocp_minimum_price" min="0" placeholder="Enter the minimum value" value="<?php echo esc_attr( get_option( 'woocp_minimum_price') ); ?>" />
+                        <input type="number" id="woocp_minimum_price" name="woocp_minimum_price" step="any" placeholder="Enter the minimum value" value="<?php echo esc_attr( get_option( 'woocp_minimum_price', floatval( '1' ) ) ); ?>" />
                         <p><?php esc_html_e( 'Enter the minimum value. You can still override it on a per-product basis.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
@@ -109,7 +111,7 @@ class Admin {
                         <label for="woocp_maximum_price"><?php esc_html_e( 'Maximum', 'woo-custom-price' ); ?></label>
                     </div>
                     <div class="form-field">
-                        <input type="number" id="woocp_maximum_price" name="woocp_maximum_price" min="0" placeholder="Enter the maximum value" value="<?php echo esc_attr( get_option( 'woocp_maximum_price' ) ); ?>" />
+                        <input type="number" id="woocp_maximum_price" step="any" name="woocp_maximum_price" placeholder="Enter the maximum value" value="<?php echo esc_attr( get_option( 'woocp_maximum_price', floatval( '1000' ) ) ); ?>" />
                         <p><?php esc_html_e( 'Enter the maximum value. You can still override it on a per-product basis.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
@@ -119,7 +121,7 @@ class Admin {
                         <label for="woocp_step"><?php esc_html_e( 'Step', 'woo-custom-price' ); ?></label>
                     </div>
                     <div class="form-field">
-                        <input type="number" id="woocp_step" name="woocp_step" step="0.01" value="<?php echo esc_attr( get_option( 'woocp_step') ); ?>" />
+                        <input type="number" id="woocp_step" name="woocp_step" step="any" value="<?php echo esc_attr( get_option( 'woocp_step', floatval( '0.01' ) ) ); ?>" />
                         <p><?php esc_html_e( 'Enter the step value. You can still override it on a per-product basis.', 'woo-custom-price' ); ?></p>
                     </div>
                 </div>
@@ -145,8 +147,8 @@ class Admin {
         $status = isset( $_POST['woocp_status'] ) ? sanitize_key( $_POST['woocp_status'] ) : '';
         $loop_add_to_cart_btn = isset( $_POST['woocp_loop_add_to_cart_btn'] ) ? sanitize_key( $_POST['woocp_loop_add_to_cart_btn'] ) : '';
         $input_label = isset( $_POST['woocp_input_label_text'] ) ? sanitize_text_field( $_POST['woocp_input_label_text'] ) : '';
-        $minimum_price = isset( $_POST['woocp_minimum_price'] ) ? intval( $_POST['woocp_minimum_price'] ) : '';
-        $maximum_price = isset( $_POST['woocp_maximum_price'] ) ? intval( $_POST['woocp_maximum_price'] ) : '';
+        $minimum_price = isset( $_POST['woocp_minimum_price'] ) ? floatval( $_POST['woocp_minimum_price'] ) : '';
+        $maximum_price = isset( $_POST['woocp_maximum_price'] ) ? floatval( $_POST['woocp_maximum_price'] ) : '';
         $step = isset( $_POST['woocp_step'] ) ? floatval( $_POST['woocp_step'] ) : '';
 
         // Update settings.
@@ -161,22 +163,105 @@ class Admin {
     }
 
     /**
-     * Your method description.
+     * Add product data tab.
+     *
+     * @since 1.0.0
+     * @retun array
+     */
+    public function add_data_tab($tabs) {
+        $tabs['woocp_custom_price'] = array(
+            'label'    => __('Woo Custom Price', 'woop-custom-price'),
+            'target'   => 'woocp_product_data',
+            'class'    => array('show_if_simple', 'show_if_variable'),
+            'priority' => 21,
+        );
+
+        return $tabs;
+    }
+
+    /**
+     * Add product data panel.
      *
      * @since 1.0.0
      * @retun void
      */
-    public function your_method_name() {
-        // Your code should appear here...
+    public function add_data_panel() {
+        global $woocommerce, $post;
+        ?>
+        <div id='woocp_product_data' class='panel woocommerce_options_panel'>
+            <div class='options_group'>
+                <?php
+                woocommerce_wp_text_input(array(
+                    'id'          => '_woocp_input_label_text',
+                    'label'       => __('Price Label', 'woo-custom-price'),
+                    'placeholder' => 'Enter Your Price',
+                    'description' => __('Enter the custom price field label.', 'woo-custom-price'),
+                    'desc_tip'    => 'true',
+                    'type'        => 'text',
+                ));
 
-        // Possible chat GPT commands.
-        // How to add woocommerce product panel tab and data.
-        // How to add custom panel and data inside the woocommerce product metabox panel.
+                woocommerce_wp_text_input(array(
+                    'id'          => '_woocp_minimum_price',
+                    'label'       => __('Minimum', 'woo-custom-price'),
+                    'placeholder' => 'Enter the minimum value',
+                    'description' => __('Enter the minimum value (ex: 1). Keep this empty or enter 0 for global settings.', 'woo-custom-price'),
+                    'desc_tip'    => 'true',
+                    'type'        => 'number',
+                    'custom_attributes' => array(
+                        'step' => 'any',
+                        'min'  => 0,
+                    ),
+                ));
 
-        // for saving metabpox data.
-        $step = isset( $_POST['woocp_step'] ) ? floatval( $_POST['woocp_step'] ) : '';
+                woocommerce_wp_text_input(array(
+                    'id'          => '_woocp_maximum_price',
+                    'label'       => __('Maximum', 'woo-custom-price'),
+                    'placeholder' => 'Enter the maximum value',
+                    'description' => __('Enter the maximum value (ex: 1000). Keep this empty or enter 0 for global settings.', 'woo-custom-price'),
+                    'desc_tip'    => 'true',
+                    'type'        => 'number',
+                    'custom_attributes' => array(
+                        'step' => 'any',
+                        'min'  => 0,
+                    ),
 
-        update_post_meta( get_the_ID(), 'woocp_your_id_name', 'yes' );
+                ));
+
+                woocommerce_wp_text_input(array(
+                    'id'          => '_woocp_step',
+                    'label'       => __('Step', 'woo-custom-price'),
+                    'placeholder' => 'Enter the step value',
+                    'description' => 'Enter the step value. Keep this empty or enter 0 for global settings.',
+                    'desc_tip'    => 'true',
+                    'type'        => 'number',
+                    'custom_attributes' => array(
+                        'step' => 'any',
+                        'min'  => 0.01,
+                    ),
+                    'data_type' => 'price'
+                ));
+                ?>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Save product meta.
+     *
+     * @since 1.0.0
+     * @retun void
+     */
+    public function save_product_meta($post_id) {
+        $price_label = isset($_POST['_woocp_input_label_text']) ? sanitize_text_field($_POST['_woocp_input_label_text']) : '';
+        $min = isset($_POST['_woocp_minimum_price']) ? floatval($_POST['_woocp_minimum_price']) : '';
+        $max = isset($_POST['_woocp_maximum_price']) ? floatval($_POST['_woocp_maximum_price']) : '';
+        $step = isset($_POST['_woocp_step']) ? floatval($_POST['_woocp_step']) : '';
+
+        update_post_meta($post_id, '_woocp_input_label_text', $price_label);
+        update_post_meta($post_id, '_woocp_minimum_price', $min);
+        update_post_meta($post_id, '_woocp_maximum_price', $max);
+        update_post_meta($post_id, '_woocp_step', $step);
     }
 
     /**
