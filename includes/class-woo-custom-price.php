@@ -195,30 +195,14 @@ class Woo_Custom_Price {
      */
     public function custom_price_html() {
         global $product;
+        $product_price=floatval($product->get_price());
+        $value=number_format($product_price, 2, '.', '');
+        $input_label = get_option( 'woocp_input_label_text', 'Enter Your Price' );
+        $minimum_price= absint( get_option('woocp_minimum_price',1) );
+//        var_dump( $minimum_price );
+        $maximum_price= intval( get_option('woocp_maximum_price',1000) );
+        $step= intval( get_option('woocp_step',1) );
 
-        // Fetch the global default values
-        $global_input_label = get_option('woocp_input_label_text', 'Enter Your Price');
-        $global_minimum_price = absint(get_option('woocp_minimum_price', 1));
-        $global_maximum_price = intval(get_option('woocp_maximum_price', 1000));
-        $global_step = intval(get_option('woocp_step', 1));
-
-        // Get the custom meta values for the product
-        $metaBox_input_label = get_post_meta($product->get_id(), '_woocp_input_label_text', true);
-        $metaBox_minimum_price = get_post_meta($product->get_id(), '_woocp_minimum_price', true);
-        $metaBox_maximum_price = get_post_meta($product->get_id(), '_woocp_maximum_price', true);
-        $metaBox_step = get_post_meta($product->get_id(), '_woocp_step', true);
-
-        // Use the custom meta values if they exist, otherwise fall back to the global values
-        $input_label = !empty($metaBox_input_label) ? $metaBox_input_label : $global_input_label;
-        $minimum_price = !empty($metaBox_minimum_price) ? absint($metaBox_minimum_price) : $global_minimum_price;
-        $maximum_price = !empty($metaBox_maximum_price) ? intval($metaBox_maximum_price) : $global_maximum_price;
-        $step = !empty($metaBox_step) ? intval($metaBox_step) : $global_step;
-
-        // Fetch and format the product price
-        $product_price = floatval($product->get_price());
-        $value = number_format($product_price, 2, '.', '');
-
-        // Output the HTML input field
         ob_start();
         ?>
 
