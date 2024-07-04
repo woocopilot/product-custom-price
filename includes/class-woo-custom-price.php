@@ -188,6 +188,24 @@ class Woo_Custom_Price {
     }
 
     /**
+     * Custom input option.
+     *
+     * @param string $key Option key.
+     * @param int $post_id Post ID.
+     * @param string $value The default value.
+     *
+     * @since 1.0.0
+     * @return mixed|null
+     */
+    public static function get_input_option( $key, $post_id, $value = null ){
+
+        $meta_value = get_post_meta( $post_id, '_' . $key, true );
+        $input_value = empty( $meta_value ) ? get_option( $key ) : $meta_value;
+
+        return empty( $input_value ) ? $value : $input_value;
+    }
+
+    /**
      * Custom price HTML.
      *
      * @since 1.0.0
@@ -195,19 +213,25 @@ class Woo_Custom_Price {
      */
     public function custom_price_html() {
         global $product;
-        $product_price=floatval($product->get_price());
-        $value=number_format($product_price, 2, '.', '');
-        $input_label = get_option( 'woocp_input_label_text', 'Enter Your Price' );
-        $minimum_price= absint( get_option('woocp_minimum_price',1) );
-//        var_dump( $minimum_price );
-        $maximum_price= intval( get_option('woocp_maximum_price',1000) );
-        $step= intval( get_option('woocp_step',1) );
 
+        // Fetch the global default values
+//        $global_input_label = get_option('woocp_input_labelx_text', 'Enter Your Price');
+//        $global_minimum_price = absint(get_option('woocp_minimum_price', 1));
+//        $global_maximum_price = intval(get_option('woocp_maximum_price', 1000));
+//        $global_step = intval(get_option('woocp_step', 1));
+
+        // Get the custom meta values for the product
+//        $metaBox_input_label = get_post_meta($product->get_id(), '_woocp_input_label_text', true);
+//        $metaBox_minimum_price = get_post_meta($product->get_id(), '_woocp_minimum_price', true);
+//        $metaBox_maximum_price = get_post_meta($product->get_id(), '_woocp_maximum_price', true);
+//        $metaBox_step = get_post_meta($product->get_id(), '_woocp_step', true);
+
+        // Output the HTML input field.
         ob_start();
         ?>
 
         <div class="woocp-price-input">
-            <label for="woocp_custom_price"><?php echo esc_html( $input_label ); ?></label>
+            <label for="woocp_custom_price"><?php echo esc_html( self::get_input_option( 'woocp_input_label_text', $product->get_id(), 'Enter Custom Price' ) ); ?></label>
             <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="<?php echo esc_attr( $step ); ?>" min="<?php echo esc_attr( $minimum_price ); ?>" max="<?php echo esc_attr( $maximum_price ); ?>" value="<?php echo esc_attr(  $value); ?>" />
         </div>
 
