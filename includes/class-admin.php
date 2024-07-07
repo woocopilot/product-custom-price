@@ -191,6 +191,18 @@ class Admin {
         <div id='woocp_product_data' class='panel woocommerce_options_panel'>
             <div class='options_group'>
                 <?php
+                woocommerce_wp_checkbox(array(
+                    'id'    => '_woocp_is_enabled',
+                    'label'  => __('Enable Custom Price', 'woo-custom-price'),
+                    'options' => array(
+                            'yes' => __('Yes', 'woo-custom-price'),
+                        'no'  => __('No', 'woo-custom-price'),
+                    ),
+                    'default' => 'yes',
+                    'description' => __('Enable woo custom price for this product', 'woo-custom-price'),
+                    'desc_tip'    => 'true',
+                ));
+
                 woocommerce_wp_text_input(array(
                     'id'          => '_woocp_input_label_text',
                     'label'       => __('Price Label', 'woo-custom-price'),
@@ -253,11 +265,13 @@ class Admin {
      * @retun void
      */
     public function save_product_meta($post_id) {
+        $woocp_is_enable = isset($_POST['_woocp_is_enabled']) ? sanitize_text_field($_POST['_woocp_is_enabled']) : '';
         $price_label = isset($_POST['_woocp_input_label_text']) ? sanitize_text_field($_POST['_woocp_input_label_text']) : '';
         $min = isset($_POST['_woocp_minimum_price']) ? floatval($_POST['_woocp_minimum_price']) : '';
         $max = isset($_POST['_woocp_maximum_price']) ? floatval($_POST['_woocp_maximum_price']) : '';
         $step = isset($_POST['_woocp_step']) ? floatval($_POST['_woocp_step']) : '';
 
+        update_post_meta($post_id, '_woocp_is_enabled', $woocp_is_enable);
         update_post_meta($post_id, '_woocp_input_label_text', $price_label);
         update_post_meta($post_id, '_woocp_minimum_price', $min);
         update_post_meta($post_id, '_woocp_maximum_price', $max);
