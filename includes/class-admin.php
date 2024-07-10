@@ -170,7 +170,7 @@ class Admin {
      */
     public function add_data_tab($tabs) {
         $tabs['woocp_custom_price'] = array(
-            'label'    => __('Woo Custom Price', 'woop-custom-price'),
+            'label'    => __('Woo Custom Price', 'woo-custom-price'),
             'target'   => 'woocp_product_data',
             'class'    => array('show_if_simple', 'show_if_variable'),
             'priority' => 21,
