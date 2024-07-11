@@ -49,7 +49,7 @@ class Woo_Custom_Price {
      * @return void
      */
     public function define_constant(){
-        define( 'WOOCPJHSDBJ_VERSION', $this->version );
+        define( 'WOOCP_VERSION', $this->version );
         define( 'WOOCP_PLUGIN_DIR', plugin_dir_path( $this->file ) );
         define( 'WOOCP_PLUGIN_URL', plugin_dir_url( $this->file ) );
         define( 'WOOCP_PLUGIN_BASENAME', plugin_basename( $this->file ) );
@@ -104,8 +104,8 @@ class Woo_Custom_Price {
      * @return void
      */
     public function dependencies_notices() {
-        if ( class_exists( 'WooCommerce' ) ) {
-            printf( '<div id="message" class="notice is-dismissible notice-warning"><p>%s</p></div>', '"Woo Custom Price plugin" is required to use WooCommerce plugin.' );
+        if ( ! class_exists( 'WooCommerce' ) ) {
+            printf( '<div id="message" class="notice is-dismissible notice-warning"><p>%s</p></div>', '"Woo Custom Price" plugin is required to use WooCommerce.' );
         }
     }
 
@@ -116,16 +116,20 @@ class Woo_Custom_Price {
      * @return void
      */
     public function init() {
-        // Include.
-        new Admin();
+        if ( is_admin() ) {
+            // Include admin classes.
+            new Admin();
+        }
 
-        // Frontend methods.
-        add_filter( 'woocommerce_loop_add_to_cart_link', [ $this, 'loop_add_to_cart_link' ], PHP_INT_MAX, 2 );
-        add_filter( 'woocommerce_get_price_html', [ $this, 'replace_original_price' ], PHP_INT_MAX, 2 );
-        add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'custom_price_html' ), PHP_INT_MAX );
-        add_filter( 'woocommerce_add_to_cart_validation', [ $this, 'add_to_cart_validation' ], PHP_INT_MAX, 2 );
-        add_filter( 'woocommerce_add_cart_item_data', [ $this, 'add_cart_item_data' ], PHP_INT_MAX );
-        add_filter( 'woocommerce_get_cart_contents', [ $this, 'get_cart_contents' ], PHP_INT_MAX, 1 );
+        if ( 'enable' === get_option( 'woocp_status', 'enable' ) ) {
+            // Frontend methods.
+            add_filter( 'woocommerce_loop_add_to_cart_link', [ $this, 'loop_add_to_cart_link' ], PHP_INT_MAX, 2 );
+            add_filter( 'woocommerce_get_price_html', [ $this, 'replace_original_price' ], PHP_INT_MAX, 2 );
+            add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'custom_price_html' ), PHP_INT_MAX );
+            add_filter( 'woocommerce_add_to_cart_validation', [ $this, 'add_to_cart_validation' ], PHP_INT_MAX, 2 );
+            add_filter( 'woocommerce_add_cart_item_data', [ $this, 'add_cart_item_data' ], PHP_INT_MAX );
+            add_filter( 'woocommerce_get_cart_contents', [ $this, 'get_cart_contents' ], PHP_INT_MAX, 1 );
+        }
     }
 
     /**
@@ -138,15 +142,9 @@ class Woo_Custom_Price {
      * @return string
      */
     public function loop_add_to_cart_link( $html, $product ) {
-
-        $get_post_meta = get_post_meta( $product->get_id(), '_woonp_status', true );
-        // TODO: Will check it after finishing the plugin settings.
-//        if ( ( WoonpHelper::get_setting( 'atc_button', 'show' ) === 'hide' ) &&
-//            ( ( WoonpHelper::get_setting( 'global_status', 'enable' ) === 'enable' && $get_post_meta !== 'disable' ) ||
-//                ( WoonpHelper::get_setting( 'global_status', 'enable' ) === 'disable' && $get_post_meta === 'overwrite' ) )
-//        ) {
-//            return '';
-//        }
+        if ( 'disable' === get_option( 'woocp_loop_add_to_cart_btn', 'disable' ) && 'yes' === get_post_meta( $product->id, '_woocp_is_enabled', true ) ) {
+            return '';
+        }
 
         return $html;
     }
@@ -161,23 +159,32 @@ class Woo_Custom_Price {
      * @return string
      */
     public function replace_original_price( $price, $product ) {
-        if ( is_admin() ) {
-            return $price;
-        }
+        $status = get_post_meta( $product->get_id(), '_woonp_status', true );
+        $min_value = absint( self::get_input_option( 'woocp_minimum_price',$product->get_id(), '1' ) );
 
-        $get_post_meta = get_post_meta( $product->get_id(), '_woonp_status', true );
-
-        // TODO: Need to check the plugin settings then replace the original price depends on the settings
-//        if (
-//            ( WoonpHelper::get_setting( 'global_status', 'enable' ) === 'enable' && $get_post_meta !== 'disable' ) ||
-//            ( WoonpHelper::get_setting( 'global_status', 'enable' ) === 'disable' && $get_post_meta === 'overwrite' )
-//        ) {
-//            $suggested_price = apply_filters( 'woonp_suggested_price', WoonpHelper::get_setting( 'suggested_price', /* translators: price */ esc_html__( 'Suggested Price: %s', 'wpc-name-your-price' ) ), $product_id );
-//
-//            return sprintf( $suggested_price, $price );
-//        }
+         if ( $status && $min_value > $product->get_price() ) {
+             return wc_price( $min_value );
+         }
 
         return $price;
+    }
+
+    /**
+     * Custom input option.
+     *
+     * @param string $key Option key.
+     * @param int $post_id Post ID.
+     * @param string $value The default value.
+     *
+     * @since 1.0.0
+     * @return mixed|null
+     */
+    public static function get_input_option( $key, $post_id, $value = null ){
+
+        $meta_value = get_post_meta( $post_id, '_' . $key, true );
+        $input_value = empty( $meta_value ) ? get_option( $key ) : $meta_value;
+
+        return empty( $input_value ) ? $value : $input_value;
     }
 
     /**
@@ -187,101 +194,24 @@ class Woo_Custom_Price {
      * @return void
      */
     public function custom_price_html() {
-        $current_user = wp_get_current_user();
-        $input = get_user_meta($current_user->ID, 'input_value', true);
-
-        if (!$input) {
-            $input = 'No input saved';
-        }
         global $product;
+
+        // Output the HTML input field.
+        $minmum_price = absint( self::get_input_option( 'woocp_minimum_price', $product->get_id(), '10' ) );
+        $original_price= floatval( $product->get_price() );
+        $product_price = $minmum_price > $original_price ? $minmum_price : $original_price;
+        $value = number_format($product_price, 2, '.', '');
+
         ob_start();
         ?>
 
         <div class="woocp-price-input">
-            <label for="woocp_custom_price"><?php esc_html_e( $input, 'woo-custom-price' ); ?></label>
-            <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="1" min="1" max="1000" value="<?php echo esc_attr( $product->get_price() ); ?>" />
+            <label for="woocp_custom_price"><?php echo esc_html( self::get_input_option( 'woocp_input_label_text', $product->get_id(), 'Enter Custom Price' ) ); ?></label>
+            <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="<?php echo floatval(esc_attr( self::get_input_option( 'woocp_step', $product->get_id(), '10' )));?>" min="<?php echo esc_attr($minmum_price); ?>" max="<?php echo esc_attr( absint(self::get_input_option( 'woocp_maximum_price', $product->get_id(), '10' ))); ?>" value="<?php echo esc_attr( $value ); ?>"/>
         </div>
 
         <?php
         echo ob_get_clean();
-
-
-//        global $product;
-
-//        if ( self::is_woonp_product() ) {
-//            // $status !== 'disable'
-//            $product_id    = $product->get_id();
-//            $global_status = WoonpHelper::get_setting( 'global_status', 'enable' );
-//            $status        = get_post_meta( $product_id, '_woonp_status', true ) ?: 'default';
-//            $type          = $min = $max = $step = $values = '';
-//
-//            if ( $status === 'overwrite' ) {
-//                $global_status = 'enable';
-//                $type          = get_post_meta( $product_id, '_woonp_type', true );
-//                $min           = get_post_meta( $product_id, '_woonp_min', true );
-//                $max           = get_post_meta( $product_id, '_woonp_max', true );
-//                $step          = get_post_meta( $product_id, '_woonp_step', true );
-//                $values        = get_post_meta( $product_id, '_woonp_values', true );
-//            }
-//
-//            if ( $status === 'default' ) {
-//                $type   = WoonpHelper::get_setting( 'type', 'default' );
-//                $min    = WoonpHelper::get_setting( 'min' );
-//                $max    = WoonpHelper::get_setting( 'max' );
-//                $step   = WoonpHelper::get_setting( 'step' );
-//                $values = WoonpHelper::get_setting( 'values' );
-//            }
-//
-//            if ( $global_status === 'disable' ) {
-//                return;
-//            }
-//
-//            switch ( WoonpHelper::get_setting( 'value', 'price' ) ) {
-//                case 'price':
-//                    $value = self::sanitize_price( $product->get_price() );
-//                    break;
-//                case 'min':
-//                    $value = self::sanitize_price( $min );
-//                    break;
-//                case 'max':
-//                    $value = self::sanitize_price( $max );
-//                    break;
-//                default:
-//                    $value = '';
-//            }
-//
-//            if ( is_product() && isset( $_REQUEST['woonp'] ) ) {
-//                $value = self::sanitize_price( $_REQUEST['woonp'] );
-//            }
-//
-//            $input_id    = 'woonp_' . $product_id;
-//            $input_label = apply_filters( 'woonp_input_label', WoonpHelper::get_setting( 'label', /* translators: currency */ esc_html__( 'Name Your Price (%s) ', 'wpc-name-your-price' ) ), $product_id );
-//            $label       = sprintf( $input_label, get_woocommerce_currency_symbol() );
-//            $price       = '<div class="' . esc_attr( apply_filters( 'woonp_input_class', 'woonp woonp-' . $status . ' woonp-type-' . $type, $product ) ) . '" data-min="' . esc_attr( $min ) . '" data-max="' . esc_attr( $max ) . '" data-step="' . esc_attr( $step ) . '">';
-//            $price       .= '<label for="' . esc_attr( $input_id ) . '">' . esc_html( $label ) . '</label>';
-//
-//            if ( ( $type === 'select' ) && ( $values = WPCleverWoonp::get_values( $values ) ) && ! empty( $values ) ) {
-//                // select
-//                $select = '<select id="' . esc_attr( $input_id ) . '" class="woonp-select" name="woonp">';
-//
-//                foreach ( $values as $v ) {
-//                    $select .= '<option value="' . esc_attr( $v['value'] ) . '" ' . ( $value == $v['value'] ? 'selected' : '' ) . '>' . $v['name'] . '</option>';
-//                }
-//
-//                $select .= '</select>';
-//
-//                $price .= apply_filters( 'woonp_input_select', $select, $product );
-//            } else {
-//                // default
-//                $input = '<input type="number" id="' . esc_attr( $input_id ) . '" class="woonp-input" step="' . esc_attr( $step ) . '" min="' . esc_attr( $min ) . '" max="' . esc_attr( 0 < $max ? $max : '' ) . '" name="woonp" value="' . esc_attr( $value ) . '" size="4"/>';
-//
-//                $price .= apply_filters( 'woonp_input_number', $input, $product );
-//            }
-//
-//            $price .= '</div>';
-//
-//            echo apply_filters( 'woonp_input', $price, $product );
-//        }
     }
 
     /**
@@ -305,7 +235,6 @@ class Woo_Custom_Price {
                 return false;
             }
         }
-
 
 //        if ( isset( $_REQUEST['woonp'] ) ) {
 //            $price = (float) $_REQUEST['woonp'];
