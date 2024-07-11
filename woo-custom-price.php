@@ -3,7 +3,7 @@
  * Plugin Name:       Woo Custom Price
  * Plugin URI:        https://woocopilot.com/plugins/woo-custom-price/
  * Description:       Woo Custom Price is a powerful WordPress plugin designed to give your customers the flexibility to set their own price when purchasing products on your WooCommerce store. With this plugin, you can empower your customers to input a custom-chosen price for any product, allowing for greater engagement and flexibility in your pricing strategy.
- * Version:           1.0.1
+ * Version:           1.0.0
  * Requires at least: 6.5
  * Requires PHP:      7.2
  * Author:            WooCopilot

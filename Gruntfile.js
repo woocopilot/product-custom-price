@@ -19,7 +19,7 @@ module.exports = function( grunt ) {
 				},
 				plugin: {
 					files: {
-						src: [
+						includes: [
 							'*.php',
 							'**/*.php',
 							'!node_modules/**',
@@ -50,7 +50,7 @@ module.exports = function( grunt ) {
 					],
 				},
 				files: {
-					src: [
+					includes: [
 						'**/*.php',
 						'!packages/**',
 						'!node_modules/**',
