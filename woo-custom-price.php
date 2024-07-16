@@ -34,8 +34,7 @@ defined( 'ABSPATH' ) || exit; // Exist if accessed directly.
 // Including classes.
 require_once __DIR__ . '/includes/class-woo-custom-price.php';
 require_once __DIR__ . '/includes/class-admin.php';
-require_once __DIR__ . '/includes/class-setting-submenu.php';
-require_once __DIR__ . '/includes/class-custom-price.php';
+
 
 /**
  * Initializing plugin.

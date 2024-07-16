@@ -1,0 +1,19 @@
+.wooco-wrap {
+	width: 100%;
+	margin: 0 auto;
+}
+.form-group{
+	display: flex;
+	gap: 20px;
+}
+.form-label{
+	width: 200px;
+	font-weight: 600;
+}
+.form-field{
+	width: 100%;
+}
+.woocp-settings-form input[type="text"],
+.woocp-settings-form input[type="number"] {
+	max-width: 300px!important;
+}
