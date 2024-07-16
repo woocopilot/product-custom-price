@@ -145,7 +145,7 @@ class Admin {
         $referrer = wp_get_referer();
 
         $status = isset( $_POST['woocp_status'] ) ? sanitize_key( $_POST['woocp_status'] ) : '';
-        $loop_add_to_cart_btn = isset( $_POST['woocp_loop_add_to_cart_btn'] ) ? sanitize_key( $_POST['woocp_loop_add_to_cart_btn'] ) : '';
+        $loop_add_to_cart_btn = isset( $_POST['woocp_loop_add_to_cart_btn'] ) ? sanitize_key( wp_unslash( $_POST['woocp_loop_add_to_cart_btn'] ) ) : '';
         $input_label = isset( $_POST['woocp_input_label_text'] ) ? sanitize_text_field( $_POST['woocp_input_label_text'] ) : '';
         $minimum_price = isset( $_POST['woocp_minimum_price'] ) ? floatval( $_POST['woocp_minimum_price'] ) : '';
         $maximum_price = isset( $_POST['woocp_maximum_price'] ) ? floatval( $_POST['woocp_maximum_price'] ) : '';

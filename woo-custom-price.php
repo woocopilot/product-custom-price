@@ -43,7 +43,7 @@ require_once __DIR__ . '/includes/class-admin.php';
  * @return Object Plugin object.
  */
 function woo_custom_price() {
-    return new Woo_Custom_Price( __FILE__, '1.0.1' );
+    return new Woo_Custom_Price( __FILE__, '1.0.0' );
 }
 
 woo_custom_price();

@@ -204,14 +204,12 @@ class Woo_Custom_Price {
 
         ob_start();
         ?>
-
         <div class="woocp-price-input">
             <label for="woocp_custom_price"><?php echo esc_html( self::get_input_option( 'woocp_input_label_text', $product->get_id(), 'Enter Custom Price' ) ); ?></label>
             <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="<?php echo floatval(esc_attr( self::get_input_option( 'woocp_step', $product->get_id(), '10' )));?>" min="<?php echo esc_attr($minmum_price); ?>" max="<?php echo esc_attr( absint(self::get_input_option( 'woocp_maximum_price', $product->get_id(), '10' ))); ?>" value="<?php echo esc_attr( $value ); ?>"/>
         </div>
-
         <?php
-        echo ob_get_clean();
+        echo wp_kses_post( ob_get_clean() );
     }
 
     /**
@@ -224,6 +222,7 @@ class Woo_Custom_Price {
      * @retun void
      */
     public function add_to_cart_validation( $validation, $product ) {
+		wp_verify_nonce( '_nonce' );
 
         if ( isset( $_REQUEST['woocp_custom_price'] ) ) {
 
@@ -235,41 +234,6 @@ class Woo_Custom_Price {
                 return false;
             }
         }
-
-//        if ( isset( $_REQUEST['woonp'] ) ) {
-//            $price = (float) $_REQUEST['woonp'];
-//
-//            } else {
-//                $status = get_post_meta( $product_id, '_woonp_status', true ) ?: 'default';
-//                $step   = 1;
-//
-//                if ( $status === 'overwrite' ) {
-//                    $min  = (float) get_post_meta( $product_id, '_woonp_min', true );
-//                    $max  = (float) get_post_meta( $product_id, '_woonp_max', true );
-//                    $step = (float) ( get_post_meta( $product_id, '_woonp_step', true ) ?: 1 );
-//                } elseif ( $status === 'default' ) {
-//                    $status = WoonpHelper::get_setting( 'global_status', 'enable' );
-//                    $min    = (float) WoonpHelper::get_setting( 'min' );
-//                    $max    = (float) WoonpHelper::get_setting( 'max' );
-//                    $step   = (float) ( WoonpHelper::get_setting( 'step' ) ?: 1 );
-//                }
-//
-//                if ( $step <= 0 ) {
-//                    $step = 1;
-//                }
-//
-//                if ( $status !== 'disable' ) {
-//                    $pow = pow( 10, strlen( (string) $step ) );
-//                    $mod = ( ( $price * $pow ) - ( $min * $pow ) ) / ( $step * $pow );
-//
-//                    if ( ( $min && ( $price < $min ) ) || ( $max && ( $price > $max ) ) || ( $mod != intval( $mod ) ) ) {
-//                        wc_add_notice( esc_html__( 'Invalid price. Please try again!', 'wpc-name-your-price' ), 'error' );
-//
-//                        return false;
-//                    }
-//                }
-//            }
-//        }
 
         return $validation;
     }
@@ -284,7 +248,7 @@ class Woo_Custom_Price {
      */
     public function add_cart_item_data( $data ) {
         if ( isset( $_REQUEST['woocp_custom_price'] ) ) {
-            $data['woocp_custom_price'] = self::sanitize_price( $_REQUEST['woocp_custom_price'] );
+            $data['woocp_custom_price'] = self::sanitize_price( sanitize_text_field( wp_unslash( $_REQUEST['woocp_custom_price'] ) ) );
             unset( $_REQUEST['woocp_custom_price'] );
         }
 
