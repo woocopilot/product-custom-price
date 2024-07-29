@@ -14,7 +14,7 @@ module.exports = function( grunt ) {
 			addtextdomain: {
 				options: {
 					expand: true,
-					text_domain: 'woo-custom-price',
+					text_domain: 'product-custom-price',
 					updateDomains: [ 'framework-text-domain' ],
 				},
 				plugin: {
@@ -31,7 +31,7 @@ module.exports = function( grunt ) {
 			},
 			checktextdomain: {
 				options: {
-					text_domain: 'woo-custom-price',
+					text_domain: 'product-custom-price',
 					keywords: [
 						'__:1,2d',
 						'_e:1,2d',

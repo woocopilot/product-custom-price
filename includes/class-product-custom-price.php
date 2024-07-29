@@ -3,11 +3,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Class Woo_Custom_Price.
+ * Class Product_Custom_Price.
  *
  * @since 1.0.0
  */
-class Woo_Custom_Price {
+class Product_Custom_Price {
 
     public object $admin;
 
@@ -49,10 +49,10 @@ class Woo_Custom_Price {
      * @return void
      */
     public function define_constant(){
-        define( 'WOOCP_VERSION', $this->version );
-        define( 'WOOCP_PLUGIN_DIR', plugin_dir_path( $this->file ) );
-        define( 'WOOCP_PLUGIN_URL', plugin_dir_url( $this->file ) );
-        define( 'WOOCP_PLUGIN_BASENAME', plugin_basename( $this->file ) );
+        define( 'PCPRICE_VERSION', $this->version );
+        define( 'PCPRICE_PLUGIN_DIR', plugin_dir_path( $this->file ) );
+        define( 'PCPRICE_PLUGIN_URL', plugin_dir_url( $this->file ) );
+        define( 'PCPRICE_PLUGIN_BASENAME', plugin_basename( $this->file ) );
     }
 
     /**
@@ -72,7 +72,7 @@ class Woo_Custom_Price {
      * @return void
      */
     public function activation_hook() {
-        update_option( 'woocp_version', $this->version );
+        update_option( 'pcprice_version', $this->version );
     }
 
     /**
@@ -94,7 +94,7 @@ class Woo_Custom_Price {
      * @return void
      */
     public function load_textdomain() {
-        load_plugin_textdomain( 'woo-custom-price', false, plugin_basename( $this->file ) );
+        load_plugin_textdomain( 'product-custom-price', false, plugin_basename( $this->file ) );
     }
 
     /**
@@ -105,7 +105,7 @@ class Woo_Custom_Price {
      */
     public function dependencies_notices() {
         if ( ! class_exists( 'WooCommerce' ) ) {
-            printf( '<div id="message" class="notice is-dismissible notice-warning"><p>%s</p></div>', '"Woo Custom Price" plugin is required to use WooCommerce.' );
+            printf( '<div id="message" class="notice is-dismissible notice-warning"><p>%s</p></div>', '"Product Custom Price" plugin is required to use WooCommerce.' );
         }
     }
 
@@ -121,7 +121,7 @@ class Woo_Custom_Price {
             new Admin();
         }
 
-        if ( 'enable' === get_option( 'woocp_status', 'enable' ) ) {
+        if ( 'enable' === get_option( 'pcprice_status', 'enable' ) ) {
             // Frontend methods.
             add_filter( 'woocommerce_loop_add_to_cart_link', [ $this, 'loop_add_to_cart_link' ], PHP_INT_MAX, 2 );
             add_filter( 'woocommerce_get_price_html', [ $this, 'replace_original_price' ], PHP_INT_MAX, 2 );
@@ -142,7 +142,7 @@ class Woo_Custom_Price {
      * @return string
      */
     public function loop_add_to_cart_link( $html, $product ) {
-        if ( 'disable' === get_option( 'woocp_loop_add_to_cart_btn', 'disable' ) && 'yes' === get_post_meta( $product->id, '_woocp_is_enabled', true ) ) {
+        if ( 'disable' === get_option( 'pcprice_loop_add_to_cart_btn', 'disable' ) && 'yes' === get_post_meta( $product->id, '_pcprice_is_enabled', true ) ) {
             return '';
         }
 
@@ -160,7 +160,7 @@ class Woo_Custom_Price {
      */
     public function replace_original_price( $price, $product ) {
         $status = get_post_meta( $product->get_id(), '_woonp_status', true );
-        $min_value = absint( self::get_input_option( 'woocp_minimum_price',$product->get_id(), '1' ) );
+        $min_value = absint( self::get_input_option( 'pcprice_minimum_price',$product->get_id(), '1' ) );
 
          if ( $status && $min_value > $product->get_price() ) {
              return wc_price( $min_value );
@@ -197,16 +197,16 @@ class Woo_Custom_Price {
         global $product;
 
         // Output the HTML input field.
-        $minmum_price = absint( self::get_input_option( 'woocp_minimum_price', $product->get_id(), '10' ) );
+        $minmum_price = absint( self::get_input_option( 'pcprice_minimum_price', $product->get_id(), '10' ) );
         $original_price= floatval( $product->get_price() );
         $product_price = $minmum_price > $original_price ? $minmum_price : $original_price;
         $value = number_format($product_price, 2, '.', '');
 
         ob_start();
         ?>
-        <div class="woocp-price-input">
-            <label for="woocp_custom_price"><?php echo esc_html( self::get_input_option( 'woocp_input_label_text', $product->get_id(), 'Enter Custom Price' ) ); ?></label>
-            <input type="number" id="woocp_custom_price" name="woocp_custom_price" step="<?php echo floatval(esc_attr( self::get_input_option( 'woocp_step', $product->get_id(), '10' )));?>" min="<?php echo esc_attr($minmum_price); ?>" max="<?php echo esc_attr( absint(self::get_input_option( 'woocp_maximum_price', $product->get_id(), '10' ))); ?>" value="<?php echo esc_attr( $value ); ?>"/>
+        <div class="pcprice-price-input">
+            <label for="pcprice_custom_price"><?php echo esc_html( self::get_input_option( 'pcprice_input_label_text', $product->get_id(), 'Enter Custom Price' ) ); ?></label>
+            <input type="number" id="pcprice_custom_price" name="pcprice_custom_price" step="<?php echo floatval(esc_attr( self::get_input_option( 'pcprice_step', $product->get_id(), '10' )));?>" min="<?php echo esc_attr($minmum_price); ?>" max="<?php echo esc_attr( absint(self::get_input_option( 'pcprice_maximum_price', $product->get_id(), '10' ))); ?>" value="<?php echo esc_attr( $value ); ?>"/>
         </div>
         <?php
         echo wp_kses_post( ob_get_clean() );
@@ -224,12 +224,12 @@ class Woo_Custom_Price {
     public function add_to_cart_validation( $validation, $product ) {
 		wp_verify_nonce( '_nonce' );
 
-        if ( isset( $_REQUEST['woocp_custom_price'] ) ) {
+        if ( isset( $_REQUEST['pcprice_custom_price'] ) ) {
 
-            $price = (float) $_REQUEST['woocp_custom_price'];
+            $price = (float) $_REQUEST['pcprice_custom_price'];
 
             if ( $price < 0 ) {
-                wc_add_notice( esc_html__( 'You can\'t fill the negative price.', 'woo-custom-price' ), 'error' );
+                wc_add_notice( esc_html__( 'You can\'t fill the negative price.', 'product-custom-price' ), 'error' );
 
                 return false;
             }
@@ -247,9 +247,9 @@ class Woo_Custom_Price {
      * @retun array
      */
     public function add_cart_item_data( $data ) {
-        if ( isset( $_REQUEST['woocp_custom_price'] ) ) {
-            $data['woocp_custom_price'] = self::sanitize_price( sanitize_text_field( wp_unslash( $_REQUEST['woocp_custom_price'] ) ) );
-            unset( $_REQUEST['woocp_custom_price'] );
+        if ( isset( $_REQUEST['pcprice_custom_price'] ) ) {
+            $data['pcprice_custom_price'] = self::sanitize_price( sanitize_text_field( wp_unslash( $_REQUEST['pcprice_custom_price'] ) ) );
+            unset( $_REQUEST['pcprice_custom_price'] );
         }
 
         return $data;
@@ -265,7 +265,7 @@ class Woo_Custom_Price {
      */
     public function get_cart_contents( $cart_contents ) {
         foreach ( $cart_contents as $cart_item ) {
-            $price = $cart_item['woocp_custom_price'];
+            $price = $cart_item['pcprice_custom_price'];
             if ( ! isset( $price ) ) {
                 continue;
             }

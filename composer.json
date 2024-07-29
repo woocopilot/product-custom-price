@@ -1,7 +1,7 @@
 {
-  "name": "woocopilot/woo-custom-price",
-  "description": "Woo Custom Price is a powerful WordPress plugin designed to give your customers the flexibility to set their own price when purchasing products on your WooCommerce store. With this plugin, you can empower your customers to input a custom-chosen price for any product, allowing for greater engagement and flexibility in your pricing strategy.",
-  "homepage": "https://woocopilot.com/plugins/woo-custom-price/",
+  "name": "woocopilot/product-custom-price",
+  "description": "Product Custom Price is a powerful WordPress plugin designed to give your customers the flexibility to set their own price when purchasing products on your WooCommerce store. With this plugin, you can empower your customers to input a custom-chosen price for any product, allowing for greater engagement and flexibility in your pricing strategy.",
+  "homepage": "https://woocopilot.com/plugins/product-custom-price/",
   "type": "wordpress-plugin",
   "license": "GPL-3.0-or-later",
   "prefer-stable": true,
@@ -62,10 +62,10 @@
   },
   "extra": {
     "mozart": {
-      "dep_namespace": "WOOCustomPrice\\",
+      "dep_namespace": "ProductCustomPrice\\",
       "dep_directory": "/lib/",
       "classmap_directory": "/lib/classes/",
-      "classmap_prefix": "WOOCustomPrice_",
+      "classmap_prefix": "ProductCustomPrice_",
       "delete_vendor_directories": true,
       "packages": []
     }
