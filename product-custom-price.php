@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Plugin Name:       Product Custom Price
  * Plugin URI:        https://woocopilot.com/plugins/product-custom-price/
  * Description:       Product Custom Price is a powerful WordPress plugin designed to give your customers the flexibility to set their own price when purchasing products on your WooCommerce store. With this plugin, you can empower your customers to input a custom-chosen price for any product, allowing for greater engagement and flexibility in your pricing strategy.
@@ -13,6 +13,8 @@
  * Text Domain:       product-custom-price
  * Domain Path:       /languages
  * Requires Plugins:  woocommerce
+ *
+ * @package ProductCustomPrice
  */
 
 /*
@@ -43,7 +45,7 @@ require_once __DIR__ . '/includes/class-admin.php';
  * @return Object Plugin object.
  */
 function product_custom_price() {
-    return new Product_Custom_Price( __FILE__, '1.0.0' );
+	return new Product_Custom_Price( __FILE__, '1.0.0' );
 }
 
 product_custom_price();

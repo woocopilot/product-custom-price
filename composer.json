@@ -6,11 +6,17 @@
   "license": "GPL-3.0-or-later",
   "prefer-stable": true,
   "minimum-stability": "dev",
-  "repositories": [],
+  "repositories": [
+    {
+      "url": "git@github.com:woocopilot/woocopilot-sniffs.git",
+      "type": "github"
+    }
+  ],
   "require": {
     "php": ">=7.4"
   },
   "require-dev": {
+    "woocopilot/woocopilot-sniffs": "dev-master",
     "codeception/lib-innerbrowser": "^1.0",
     "codeception/module-asserts": "^1.1",
     "codeception/module-cli": "^1.0",
