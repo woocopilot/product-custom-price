@@ -36,7 +36,7 @@ class Admin {
 			'woocommerce',
 			__( 'Product Custom Price', 'product-custom-price' ),
 			__( 'Product Custom Price', 'product-custom-price' ),
-			'manage_woocommerce',
+			get_role( 'manage_woocommerce' ) ?? 'manage_options',
 			'product-custom-price',
 			array( $this, 'render_settings_page' ),
 		);
@@ -144,12 +144,12 @@ class Admin {
 		check_admin_referer( 'pcprice_update_settings' );
 		$referrer = wp_get_referer();
 
-		$status               = isset( $_POST['pcprice_status'] ) ? sanitize_key( $_POST['pcprice_status'] ) : '';
+		$status               = isset( $_POST['pcprice_status'] ) ? sanitize_key( wp_unslash( $_POST['pcprice_status'] ) ) : '';
 		$loop_add_to_cart_btn = isset( $_POST['pcprice_loop_add_to_cart_btn'] ) ? sanitize_key( wp_unslash( $_POST['pcprice_loop_add_to_cart_btn'] ) ) : '';
-		$input_label          = isset( $_POST['pcprice_input_label_text'] ) ? sanitize_text_field( $_POST['pcprice_input_label_text'] ) : '';
-		$minimum_price        = isset( $_POST['pcprice_minimum_price'] ) ? floatval( $_POST['pcprice_minimum_price'] ) : '';
-		$maximum_price        = isset( $_POST['pcprice_maximum_price'] ) ? floatval( $_POST['pcprice_maximum_price'] ) : '';
-		$step                 = isset( $_POST['pcprice_step'] ) ? floatval( $_POST['pcprice_step'] ) : '';
+		$input_label          = isset( $_POST['pcprice_input_label_text'] ) ? sanitize_text_field( wp_unslash( $_POST['pcprice_input_label_text'] ) ) : '';
+		$minimum_price        = isset( $_POST['pcprice_minimum_price'] ) ? floatval( wp_unslash( $_POST['pcprice_minimum_price'] ) ) : '';
+		$maximum_price        = isset( $_POST['pcprice_maximum_price'] ) ? floatval( wp_unslash( $_POST['pcprice_maximum_price'] ) ) : '';
+		$step                 = isset( $_POST['pcprice_step'] ) ? floatval( wp_unslash( $_POST['pcprice_step'] ) ) : '';
 
 		// Update settings.
 		update_option( 'pcprice_status', $status );
@@ -164,6 +164,8 @@ class Admin {
 
 	/**
 	 * Add product data tab.
+	 *
+	 * @param array $tabs Array of tabs.
 	 *
 	 * @since 1.0.0
 	 * @retun array
@@ -271,15 +273,19 @@ class Admin {
 	/**
 	 * Save product meta.
 	 *
+	 * @param int $post_id The post ID.
+	 *
 	 * @since 1.0.0
 	 * @retun void
 	 */
 	public function save_product_meta( $post_id ) {
-		$pcprice_is_enable = isset( $_POST['_pcprice_is_enabled'] ) ? sanitize_text_field( $_POST['_pcprice_is_enabled'] ) : '';
-		$price_label       = isset( $_POST['_pcprice_input_label_text'] ) ? sanitize_text_field( $_POST['_pcprice_input_label_text'] ) : '';
-		$min               = isset( $_POST['_pcprice_minimum_price'] ) ? floatval( $_POST['_pcprice_minimum_price'] ) : '';
-		$max               = isset( $_POST['_pcprice_maximum_price'] ) ? floatval( $_POST['_pcprice_maximum_price'] ) : '';
-		$step              = isset( $_POST['_pcprice_step'] ) ? floatval( $_POST['_pcprice_step'] ) : '';
+		wp_verify_nonce( '_nonce' );
+
+		$pcprice_is_enable = isset( $_POST['_pcprice_is_enabled'] ) ? sanitize_text_field( wp_unslash( $_POST['_pcprice_is_enabled'] ) ) : '';
+		$price_label       = isset( $_POST['_pcprice_input_label_text'] ) ? sanitize_text_field( wp_unslash( $_POST['_pcprice_input_label_text'] ) ) : '';
+		$min               = isset( $_POST['_pcprice_minimum_price'] ) ? floatval( wp_unslash( $_POST['_pcprice_minimum_price'] ) ) : '';
+		$max               = isset( $_POST['_pcprice_maximum_price'] ) ? floatval( wp_unslash( $_POST['_pcprice_maximum_price'] ) ) : '';
+		$step              = isset( $_POST['_pcprice_step'] ) ? floatval( wp_unslash( $_POST['_pcprice_step'] ) ) : '';
 
 		update_post_meta( $post_id, '_pcprice_is_enabled', $pcprice_is_enable );
 		update_post_meta( $post_id, '_pcprice_input_label_text', $price_label );

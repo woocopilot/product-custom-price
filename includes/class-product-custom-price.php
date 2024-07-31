@@ -9,8 +9,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class Product_Custom_Price {
 
-	public object $admin;
-
 	/**
 	 * File.
 	 *
@@ -31,6 +29,9 @@ class Product_Custom_Price {
 
 	/**
 	 * Constructor.
+	 *
+	 * @param string $file Plugin file path.
+	 * @param string $version Plugin version.
 	 *
 	 * @since 1.0.0
 	 */
@@ -116,17 +117,18 @@ class Product_Custom_Price {
 	 * @return void
 	 */
 	public function init() {
+
+		// Include admin classes.
 		if ( is_admin() ) {
-			// Include admin classes.
 			new Admin();
 		}
 
+		// Frontend methods.
 		if ( 'enable' === get_option( 'pcprice_status', 'enable' ) ) {
-			// Frontend methods.
 			add_filter( 'woocommerce_loop_add_to_cart_link', array( $this, 'loop_add_to_cart_link' ), PHP_INT_MAX, 2 );
 			add_filter( 'woocommerce_get_price_html', array( $this, 'replace_original_price' ), PHP_INT_MAX, 2 );
 			add_action( 'woocommerce_before_add_to_cart_button', array( $this, 'custom_price_html' ), PHP_INT_MAX );
-			add_filter( 'woocommerce_add_to_cart_validation', array( $this, 'add_to_cart_validation' ), PHP_INT_MAX, 2 );
+			add_filter( 'woocommerce_add_to_cart_validation', array( $this, 'add_to_cart_validation' ), PHP_INT_MAX );
 			add_filter( 'woocommerce_add_cart_item_data', array( $this, 'add_cart_item_data' ), PHP_INT_MAX );
 			add_filter( 'woocommerce_get_cart_contents', array( $this, 'get_cart_contents' ), PHP_INT_MAX, 1 );
 		}
@@ -216,12 +218,11 @@ class Product_Custom_Price {
 	 * Add to cart validation.
 	 *
 	 * @param bool $validation Boolean value.
-	 * @param int  $product Product ID.
 	 *
 	 * @since 1.0.0
 	 * @retun void
 	 */
-	public function add_to_cart_validation( $validation, $product ) {
+	public function add_to_cart_validation( $validation ) {
 		wp_verify_nonce( '_nonce' );
 
 		if ( isset( $_REQUEST['pcprice_custom_price'] ) ) {
@@ -247,6 +248,8 @@ class Product_Custom_Price {
 	 * @retun array
 	 */
 	public function add_cart_item_data( $data ) {
+		wp_verify_nonce( '_nonce' );
+
 		if ( isset( $_REQUEST['pcprice_custom_price'] ) ) {
 			$data['pcprice_custom_price'] = self::sanitize_price( sanitize_text_field( wp_unslash( $_REQUEST['pcprice_custom_price'] ) ) );
 			unset( $_REQUEST['pcprice_custom_price'] );
@@ -265,10 +268,12 @@ class Product_Custom_Price {
 	 */
 	public function get_cart_contents( $cart_contents ) {
 		foreach ( $cart_contents as $cart_item ) {
-			$price = $cart_item['pcprice_custom_price'];
-			if ( ! isset( $price ) ) {
+
+			if ( ! isset( $cart_item['pcprice_custom_price'] ) ) {
 				continue;
 			}
+
+			$price = $cart_item['pcprice_custom_price'];
 
 			$cart_item['data']->set_price( $price );
 			$cart_item['data']->set_regular_price( $price );
